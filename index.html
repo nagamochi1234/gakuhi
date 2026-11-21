@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>子どもの教育費シミュレーション｜学費の合計と多子世帯の大学無償化</title>
+<meta name="description" content="子ども3人以上の家の教育費シミュレーション。生まれ年と進路から、高校・大学の学費の合計と、多子世帯の大学無償化が使える年・外れる年をスマホで計算できます。">
+<link rel="canonical" href="https://nagamochi1234.github.io/gakuhi/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="子どもの学費、全部でいくら？｜無料の教育費シミュレーション">
+<meta property="og:description" content="生まれ年と進路を入れるだけ。高校・大学の学費の合計と、多子世帯の大学無償化が外れる年がわかります。無料・登録なし。">
+<meta property="og:url" content="https://nagamochi1234.github.io/gakuhi/">
+<meta property="og:image" content="https://nagamochi1234.github.io/gakuhi/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* 紺・生成り・若葉色。1カラムのスマホ画面：上に結果、下に入力のステップ */
+  --bg: #f6f3ea; --surface: #fffdf7; --ink: #1d2b3f; --muted: #5f6b78; --line: #ddd6c6;
+  --accent: #5f9a3a; --accent-ink: #ffffff; --navy: #2f5f96; --good: #3f7d2c; --bad: #b3361f;
+  --soft: #e6eef8; --soft-bad: #f8e4df;
+  --font-display: "Zen Maru Gothic", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141b24; --surface: #1c2531; --ink: #ece7da; --muted: #a3acb6; --line: #2f3a48;
+    --accent: #8cc464; --accent-ink: #13200b; --navy: #7fb0ea; --good: #8cc464; --bad: #ff8a73;
+    --soft: #1f3047; --soft-bad: #3a2620; color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 16px; line-height: 1.7; -webkit-text-size-adjust: 100%; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 20px 16px 48px; display: grid; gap: 18px; }
+h1 { word-break: keep-all; font-family: var(--font-display); font-size: 1.45rem; line-height: 1.35; margin: 0; text-wrap: balance; }
+h2 { font-family: var(--font-display); font-size: 1.15rem; margin: 0; text-wrap: balance; display: flex; gap: 10px; align-items: center; }
+.lead { color: var(--muted); font-size: .92rem; margin: 4px 0 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 16px; display: grid; gap: 14px; }
+.step { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font-size: .9rem; font-family: var(--font-body); font-weight: 700; flex: none; }
+.badge { justify-self: start; font-size: .8rem; color: var(--muted); border: 1px dashed var(--line); border-radius: 999px; padding: 2px 10px; }
+.tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tile { border-radius: 12px; padding: 12px; display: grid; gap: 2px; background: var(--soft); }
+.tile.big { background: var(--bg); border: 1px solid var(--line); }
+.tile.big .v { font-size: 2.1rem; }
+.tile.warn { background: var(--soft-bad); }
+.tile .k { font-size: .82rem; color: var(--muted); }
+.tile .v { font-family: var(--font-display); font-size: 1.5rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.25; }
+.tile .v small { font-size: .9rem; margin-left: 2px; }
+.tile .s { font-size: .8rem; color: var(--muted); }
+.sub { font-size: .95rem; font-weight: 700; margin: 0; }
+.note { font-size: .82rem; color: var(--muted); margin: 0; }
+.alerts { display: grid; gap: 8px; }
+.pill { display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; font-size: .93rem; line-height: 1.55; }
+.pill.ok { background: color-mix(in srgb, var(--good) 14%, transparent); }
+.pill.ng { background: color-mix(in srgb, var(--bad) 14%, transparent); }
+.dot { width: 10px; height: 10px; border-radius: 50%; margin-top: 7px; flex: none; }
+.ok .dot { background: var(--good); } .ng .dot { background: var(--bad); }
+.chart svg { width: 100%; height: auto; display: block; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 14px; font-size: .82rem; color: var(--muted); }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+details { border-top: 1px solid var(--line); padding-top: 10px; }
+summary { cursor: pointer; font-weight: 700; color: var(--accent); font-size: .95rem; }
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+th, td { padding: 5px 8px; border-bottom: 1px solid var(--line); text-align: right; }
+th { background: var(--surface); font-weight: 700; color: var(--muted); }
+td:first-child, th:first-child { text-align: left; position: sticky; left: 0; background: var(--surface); }
+td.off { color: var(--bad); font-weight: 700; }
+.field { display: grid; gap: 6px; }
+.field > label, .field > .lbl { font-weight: 700; font-size: .95rem; }
+.hint { font-size: .8rem; color: var(--muted); margin-top: -4px; }
+select { width: 100%; font: inherit; font-size: 1.05rem; color: var(--ink); background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 11px 12px; min-height: 48px; }
+select:focus-visible, button:focus-visible { outline: 3px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset: 2px; border-color: var(--accent); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border: 1.5px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { font: inherit; font-size: .98rem; border: 0; border-radius: 8px; padding: 9px 0; background: transparent; color: var(--ink); cursor: pointer; min-height: 42px; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.kid { border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: grid; gap: 10px; background: var(--bg); }
+.kid select, .kid .seg { background: var(--surface); }
+.kidhead { display: flex; justify-content: space-between; align-items: center; font-weight: 700; }
+.linkbtn { font: inherit; font-size: .88rem; background: none; border: 0; color: var(--muted); text-decoration: underline; cursor: pointer; padding: 6px 2px; }
+.btn { font: inherit; font-weight: 700; border-radius: 12px; padding: 12px 14px; min-height: 48px; cursor: pointer; border: 1.5px solid var(--accent); background: transparent; color: var(--accent); }
+.btn.solid { background: var(--accent); color: var(--accent-ink); }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.cta { border: 2px solid var(--accent); }
+.cta-lead { margin: 0; font-size: .95rem; }
+.checks { margin: 0; padding: 0; list-style: none; display: grid; gap: 8px; font-size: .93rem; line-height: 1.55; }
+.checks li { position: relative; padding-left: 26px; }
+.checks li::before { content: ""; position: absolute; left: 4px; top: .35em; width: 12px; height: 7px; border-left: 2.5px solid var(--accent); border-bottom: 2.5px solid var(--accent); transform: rotate(-45deg); }
+.foot { font-size: .8rem; color: var(--muted); display: grid; gap: 6px; }
+.foot p { margin: 0; }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <h1>子どもの学費、<wbr>全部でいくら？</h1>
+    <p class="lead">教育費シミュレーションです。子どもの生まれ年と進路から、高校・大学の学費の合計と、多子世帯（子ども3人以上）の大学無償化が使える年・外れる年を計算します。お金はすべて万円です。</p>
+  </header>
+
+  <section class="card" aria-labelledby="res-h" id="result">
+    <h2 id="res-h">結果（目安）</h2>
+    <span class="badge" id="example-badge">最初は架空の家族の例で計算しています</span>
+    <div class="tile big"><span class="k">学費（公立高校以外）の合計</span><span class="v" id="t-total"></span><span class="s" id="t-total-s"></span></div>
+    <div class="tiles">
+      <div class="tile"><span class="k">無償化で減る額</span><span class="v" id="t-gen"></span></div>
+      <div class="tile warn"><span class="k">無償化がなかったら</span><span class="v" id="t-none"></span></div>
+    </div>
+    <p class="sub">無償化が外れる年はあるか</p>
+    <div class="alerts" id="alerts"></div>
+    <p class="sub">年度ごとの学費</p>
+    <div class="chart" id="chart"></div>
+    <div class="legend"><span><i style="background:var(--navy)"></i>家族が払う学費</span><span><i style="background:var(--accent)"></i>無償化で減る分</span><span><i style="background:var(--bad)"></i>大学に通う子がいるのに無償化が外れる年</span></div>
+    <p class="note" id="peak"></p>
+    <details>
+      <summary>年ごとの表を見る</summary>
+      <div class="tablewrap"><table id="ytable"></table></div>
+      <p class="note" style="margin-top:8px">無償化は、前の年度の12月31日に扶養している子の数で判定します。扶養している子が減った年度も、その年度は対象のままです。</p>
+    </details>
+  </section>
+
+  <section class="card cta" aria-labelledby="cta-h">
+    <h2 id="cta-h">学費が分かったら、次は「家計がもつか」</h2>
+    <p class="cta-lead">学費がいちばん重い年に、家計は赤字にならないか。2027年1〜2月に公開予定の有料の家族版では、収入と生活費まで入れて、次のことまで分かります。</p>
+    <ul class="checks">
+      <li>末っ子の卒業まで、家計が年度ごとにもつか。貯金がいちばん少なくなる年といくらか</li>
+      <li>住んでいる県の私立高校の学費（47都道府県）での計算</li>
+      <li>子ども名義の積立（児童手当を貯めた口座など）を先に使ったときの手出し</li>
+      <li>共働き・片働き、働き方を変える年の違い</li>
+      <li>児童手当の「第3子」の数え方まで入れた手当の額</li>
+      <li>年ごとの表とグラフ、数字の根拠と計算のしかた。スマホ版とExcel版の両方</li>
+    </ul>
+    <p class="note" id="paid-link">公開したら、noteの「ながもち」でお知らせします。フォローしておくと見逃しません。</p>
+  </section>
+
+  <form id="form" class="wrap" style="padding:0" autocomplete="off" novalidate>
+    <section class="card">
+      <h2><span class="step">1</span>子どもと進路</h2>
+      <div id="kids" style="display:grid;gap:10px"></div>
+      <button type="button" class="btn" id="addkid">子どもを追加する</button>
+      <p class="hint">1〜3月生まれも、生まれた月を選べば学年を自動で合わせます。4月1日生まれは前の学年に入るので「3月」を選んでください。「就職」を選んだ子は高校卒業で扶養から外れるので、下の子の無償化に響くことがあります</p>
+    </section>
+
+    <section class="card">
+      <h2><span class="step">2</span>大学の無償化</h2>
+      <div class="field"><span class="lbl" id="mus-l">多子世帯の大学無償化を入れる</span>
+        <div class="seg" role="group" aria-labelledby="mus-l"><button type="button" id="mus_y" aria-pressed="true">入れる</button><button type="button" id="mus_n" aria-pressed="false">入れない</button></div>
+        <p class="hint">扶養している子が3人以上の間だけ、大学などの授業料・入学金が減免されます。「入れない」で制度がなくなった場合を見られます</p></div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn" id="reset">例の家族に戻す</button>
+      <a class="btn solid" href="#result" style="text-align:center;text-decoration:none">結果を見る</a>
+    </div>
+  </form>
+
+  <footer class="foot">
+    <p><b>ご利用にあたって</b>　このページは、公表されている統計と制度をもとに学費を試算する一般的な道具です。個別の税務相談などに代わるものではなく、結果の正確さを保証するものではありません。無償化や奨学金は学校とJASSO（日本学生支援機構）に、税の扶養は勤め先か税務署に確認してください。</p>
+    <p><b>免責</b>　このページの結果を使ったことで生じた損害について、作成者は、故意または重大な過失がある場合を除き、責任を負いません。結果をどう使うかは、利用者ご自身の判断でお決めください。</p>
+    <p><b>前提</b>　合計は今の年度から先の分で、もう払った学費は入れていません。学費は私立高校・大学・専門学校などの学校に納めるお金だけで、公立高校までの学費、生活費、受験料、仕送り、自治体独自の支援、収入で決まる給付型奨学金は入れていません。私立高校は全国の平均から就学支援金（年45.72万円まで）を引いた額です。入学金は1年生の年度に入れています。「扶養している子」は、18歳の年度までの子と、在学中の子を数えます。高校卒業後に就職した子と、学校を卒業した子は扶養から外れるとしています。無償化は、毎年10月に前の年の12月31日時点の扶養で確かめられるので、ここでは前の年度に扶養している子の数で判定しています。年度の前半はさらに1年前の扶養で判定されるため、実際はこの計算より長く続くことがあります（この計算は厳しめに出ます）。在学中の子のバイト代が多いと扶養から外れ、その子も弟や妹も対象外になりうるので注意してください。2026年分の収入なら、19〜22歳（早生まれの高校3年生を含む）は年169万円、それ以外は年136万円を超えると数に入りません。無償化を受けるには、学校を通じた申込みと、学業の要件もあります。浪人・留年は入れていません。</p>
+    <p><b>出どころ</b>　私立高校：文部科学省「令和6年度私立高等学校等初年度授業料等の調査結果」の全国平均。私立大学・短大：文部科学省「私立大学等の令和7年度入学者に係る学生納付金等調査結果」（専門学校の学費は、私立短大の平均を目安に使用）。国立大学：標準額。無償化の上限：高等教育の修学支援新制度の減免上限（私立の短大は入学金25万円・授業料62万円、私立の専門学校は入学金16万円・授業料59万円まで）。判定の時期とバイトの線：文部科学省「多子世帯への授業料等無償化に係るFAQ」（2026年9月14日版）。いずれも公表データを基に作成者が加工して作成したもので、国が作ったものではありません。2026年11月版。</p>
+    <p>入力した数字は、この端末のブラウザにだけ残ります。作成者を含め、ほかの人には送られません。</p>
+    <p>作成：ながもち（多子世帯の学費と家計を、公式の資料と窓口で確かめながら点検している会社員）</p>
+  </footer>
+</main>
+
+<script id="calc">
+// 私立高校（全国平均）：授業料, 入学金, 施設費（万円）
+const HS = { tuition: 45.7331, entry: 16.5898, facility: 15.7232 };
+// 進路: 入学金, 授業料(年), 施設費(年), 年数, 無償化上限 入学金, 授業料(年)
+// 専門学校の学費は私立短大の平均を目安に使う。減免の上限は私立の専門学校の額
+const COURSE = {
+  "国公立大学": [28.2, 53.58, 0, 4, 28.2, 53.58],
+  "私立大学（文系）": [22.0, 85.04, 14.19, 4, 26, 70],
+  "私立大学（理系）": [24.54, 119.53, 16.14, 4, 26, 70],
+  "短大": [23.61, 73.43, 17.01, 2, 25, 62],
+  "専門学校": [23.61, 73.43, 17.01, 2, 16, 59],
+  "就職": [0, 0, 0, 0, 0, 0]
+};
+const SHIENKIN = 45.72;
+
+function compute(inp) {
+  const kids = inp.kids.map((k, idx) => {
+    // base：学年の基準になる年。1〜3月生まれは前の年の4月生まれと同じ学年
+    const base = (k.month >= 4 || !k.month) ? k.year : k.year - 1;
+    const c = COURSE[k.after] || COURSE["就職"];
+    return { idx, born: k.year, base, hs: k.hs, entry: c[0], tuition: c[1], facility: c[2], years: c[3], capE: c[4], capT: c[5], finish: base + 18 + c[3] };
+  });
+  // y年度の age = y - base。16〜18が高校、19から大学などの1年生
+  const inUniAt = (k, y) => { const age = y - k.base; return k.years > 0 && age >= 19 && age <= 18 + k.years; };
+  // y年度の12月31日に扶養している子の数（その日までに生まれた18歳の年度までの子と、在学中の子）
+  const fuyoAt = y => kids.reduce((s, k) => s + (((k.born <= y && y - k.base <= 18) || inUniAt(k, y)) ? 1 : 0), 0);
+  const fin = Math.max(...kids.map(k => k.finish));
+  const rows = [];
+  for (let y = inp.start; y <= fin; y++) {
+    const fuyo = fuyoAt(y);
+    const judge = fuyoAt(y - 1); // 判定は前の年度の12月31日の扶養
+    const tashi = judge >= 3;
+    let pay = 0, gen = 0, lost = 0, uniKids = [];
+    kids.forEach(k => {
+      const age = y - k.base;
+      const inUni = inUniAt(k, y);
+      const hsCost = (k.hs === "私立" && age >= 16 && age <= 18) ? (age === 16 ? HS.entry : 0) + HS.facility + Math.max(0, HS.tuition - SHIENKIN) : 0;
+      const uni = inUni ? (age === 19 ? k.entry : 0) + k.tuition + k.facility : 0;
+      const cap = inUni ? (age === 19 ? Math.min(k.entry, k.capE) : 0) + Math.min(k.tuition, k.capT) : 0;
+      const g = (inp.mushoka && tashi) ? cap : 0;
+      if (inUni) uniKids.push(k.idx);
+      if (inUni && !tashi) lost += cap;
+      pay += hsCost + uni - g; gen += g;
+    });
+    rows.push({ y, fuyo, judge, tashi, pay, gen, lost, uniKids });
+  }
+  const sum = key => rows.reduce((s, r) => s + r[key], 0);
+  const everTashi = rows.some(r => r.tashi && r.uniKids.length);
+  return { rows, fin, pay: sum("pay"), gen: sum("gen"), lost: sum("lost"), everTashi };
+}
+if (typeof module !== "undefined") module.exports = { compute, COURSE };
+</script>
+<script>
+const EXAMPLE = { kids: [
+  { year: 2013, month: 5, hs: "公立", after: "国公立大学" },
+  { year: 2015, month: 8, hs: "私立", after: "私立大学（文系）" },
+  { year: 2018, month: 6, hs: "公立", after: "私立大学（文系）" } ], mushoka: true };
+const KEY = "gakuhi-family-free-v1";
+const today = new Date();
+const calY = today.getFullYear();
+const nowY = today.getMonth() >= 3 ? calY : calY - 1; // 今の年度（4月始まり）
+let state;
+try { state = JSON.parse(localStorage.getItem(KEY)) || null; } catch (e) { state = null; }
+if (!state || !Array.isArray(state.kids) || !state.kids.length) state = structuredClone(EXAMPLE);
+// 前の版で保存した進路の名前を、今の選択肢に合わせる
+state.kids.forEach(k => { if (!COURSE[k.after]) k.after = k.after === "専門学校・短大" ? "専門学校" : "国公立大学"; });
+if (typeof state.mushoka !== "boolean") state.mushoka = true;
+const $ = id => document.getElementById(id);
+const fmt = v => Math.round(v).toLocaleString("ja-JP");
+const ord = i => `${i + 1}人目`;
+
+function seg(a, b, on) { $(a).setAttribute("aria-pressed", on); $(b).setAttribute("aria-pressed", !on); }
+function renderKids() {
+  const years = Array.from({ length: 26 }, (_, i) => calY - i);
+  $("kids").innerHTML = state.kids.map((k, i) => `
+    <div class="kid">
+      <div class="kidhead"><span>${ord(i)}</span>${state.kids.length > 1 ? `<button type="button" class="linkbtn" data-del="${i}">この子を消す</button>` : ""}</div>
+      <div class="row2">
+        <div class="field"><label for="ky${i}">生まれた年</label><select id="ky${i}" data-k="year" data-i="${i}">${years.map(y => `<option value="${y}"${y === k.year ? " selected" : ""}>${y}年</option>`).join("")}</select></div>
+        <div class="field"><label for="km${i}">生まれた月</label><select id="km${i}" data-k="month" data-i="${i}">${Array.from({ length: 12 }, (_, m) => `<option value="${m + 1}"${m + 1 === k.month ? " selected" : ""}>${m + 1}月</option>`).join("")}</select></div>
+      </div>
+      <div class="field"><span class="lbl" id="khl${i}">高校</span><div class="seg" role="group" aria-labelledby="khl${i}">
+        <button type="button" data-hs="公立" data-i="${i}" aria-pressed="${k.hs === "公立"}">公立</button><button type="button" data-hs="私立" data-i="${i}" aria-pressed="${k.hs === "私立"}">私立</button></div></div>
+      <div class="field"><label for="ka${i}">高校のあと</label><select id="ka${i}" data-k="after" data-i="${i}">${Object.keys(COURSE).map(c => `<option${c === k.after ? " selected" : ""}>${c}</option>`).join("")}</select></div>
+    </div>`).join("");
+  $("addkid").hidden = state.kids.length >= 6;
+}
+function fill() { seg("mus_y", "mus_n", state.mushoka); renderKids(); }
+
+function update() {
+  try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  $("example-badge").hidden = JSON.stringify(state) !== JSON.stringify(EXAMPLE);
+  const r = compute({ start: nowY, kids: state.kids, mushoka: state.mushoka });
+  const r0 = compute({ start: nowY, kids: state.kids, mushoka: false });
+  $("t-total").innerHTML = `約${fmt(r.pay)}<small>万円</small>`;
+  $("t-total-s").textContent = `${nowY}年度から、子ども全員が学校を出る${r.fin}年度までの合計${state.mushoka ? "（無償化あり）" : "（無償化なし）"}。もう払った分は入っていません`;
+  $("t-gen").innerHTML = `約${fmt(r.gen)}<small>万円</small>`;
+  $("t-none").innerHTML = `約${fmt(r0.pay)}<small>万円</small>`;
+  drawAlerts(r); drawChart(r); drawTable(r);
+  const pk = r.rows.reduce((m, x) => x.pay > m.pay ? x : m, { pay: 0, y: null });
+  $("peak").textContent = pk.pay > 0 ? `学費がいちばん重いのは${pk.y}年度で、1年で約${fmt(pk.pay)}万円です。` : "この条件では、公立高校以外の学費はかかりません。";
+}
+
+function drawAlerts(r) {
+  const pill = (ok, t) => `<div class="pill ${ok ? "ok" : "ng"}"><span class="dot"></span><span>${t}</span></div>`;
+  const off = r.rows.filter(x => !x.tashi && x.uniKids.length);
+  const out = [];
+  if (!r.rows.some(x => x.uniKids.length)) out.push(pill(true, "この条件では、大学などに通う年がありません。"));
+  else if (!r.everTashi) out.push(pill(false, "大学などに通う年度に、その前の年度に扶養している子が3人以上になりません。この条件では、多子世帯の無償化は使えません。"));
+  else if (!off.length) out.push(pill(true, "大学などに通う年度は、どれもその前の年度に扶養している子が3人以上です。無償化が途中で外れる年はありません。"));
+  else {
+    const first = off[0];
+    const who = first.uniKids.map(ord).join("・");
+    out.push(pill(false, `<b>${first.y}年度から</b>、${who}の大学などの学費が無償化の対象外になります。前の${first.y - 1}年度に、扶養している子が${first.judge}人になるためです（判定は前の年の12月31日時点の扶養で行います）。外れる年は${off.length}年、減免されない額は合計で約${fmt(r.lost)}万円です。`));
+  }
+  if (!state.mushoka) out.push(pill(false, "いまは「無償化を入れない」で計算しています。"));
+  $("alerts").innerHTML = out.join("");
+}
+
+function drawChart(r) {
+  const rows = r.rows;
+  const W = 360, H = 200, L = 40, R = 8, T = 12, B = 26;
+  const hi0 = Math.max(1, ...rows.map(x => x.pay + x.gen));
+  const mag = Math.pow(10, Math.floor(Math.log10(hi0 / 4)));
+  const step = [1, 2, 5, 10].map(m => m * mag).find(s => s >= hi0 / 4);
+  const hi = Math.ceil(hi0 / step) * step;
+  const bw = (W - L - R) / rows.length;
+  const yv = v => T + (hi - v) * (H - T - B) / hi;
+  let g = "";
+  for (let v = 0; v <= hi + 1e-9; v += step) {
+    g += `<line x1="${L}" x2="${W - R}" y1="${yv(v)}" y2="${yv(v)}" stroke="var(--line)"/>`;
+    g += `<text x="${L - 5}" y="${yv(v) + 4}" text-anchor="end" font-size="10" fill="var(--muted)">${fmt(v)}</text>`;
+  }
+  const every = Math.ceil(rows.length / 5);
+  rows.forEach((row, i) => {
+    const x = L + i * bw + bw * 0.15, w = bw * 0.7;
+    const off = !row.tashi && row.uniKids.length;
+    const c = off ? "var(--bad)" : "var(--navy)";
+    if (row.pay > 0) g += `<rect x="${x}" y="${yv(row.pay)}" width="${w}" height="${yv(0) - yv(row.pay)}" fill="${c}" rx="1.5"><title>${row.y}年度 学費${fmt(row.pay)}万円</title></rect>`;
+    if (row.gen > 0) g += `<rect x="${x}" y="${yv(row.pay + row.gen)}" width="${w}" height="${yv(0) - yv(row.gen)}" fill="var(--accent)" opacity=".75" rx="1.5"><title>${row.y}年度 無償化で減る分${fmt(row.gen)}万円</title></rect>`;
+    if (i % every === 0 || i === rows.length - 1) g += `<text x="${x + w / 2}" y="${H - 8}" text-anchor="middle" font-size="10" fill="var(--muted)">${row.y}</text>`;
+  });
+  $("chart").innerHTML = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="年度ごとの学費（万円）。家族が払う額と、無償化で減る額">${g}</svg>`;
+}
+
+function drawTable(r) {
+  const h = ["年度", "扶養している子", "判定に使う数（前の年度）", "大学などに通う子", "無償化", "家族が払う学費", "無償化で減る分"];
+  $("ytable").innerHTML = `<thead><tr>${h.map(x => `<th>${x}</th>`).join("")}</tr></thead><tbody>` +
+    r.rows.map(x => {
+      const off = !x.tashi && x.uniKids.length;
+      const mus = !x.uniKids.length ? "-" : off ? "外れる" : state.mushoka ? "対象" : "（入れていない）";
+      return `<tr><td>${x.y}</td><td>${x.fuyo}人</td><td>${x.judge}人</td><td>${x.uniKids.length ? x.uniKids.map(ord).join("・") : "-"}</td><td class="${off ? "off" : ""}">${mus}</td><td>${x.pay ? fmt(x.pay) : "-"}</td><td>${x.gen ? fmt(x.gen) : "-"}</td></tr>`;
+    }).join("") + "</tbody>";
+}
+
+$("form").addEventListener("input", e => {
+  const t = e.target;
+  if (t.dataset.k) state.kids[+t.dataset.i][t.dataset.k] = t.dataset.k === "after" ? t.value : +t.value;
+  update();
+});
+$("form").addEventListener("submit", e => e.preventDefault());
+$("form").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  if (b.dataset.hs) { state.kids[+b.dataset.i].hs = b.dataset.hs; renderKids(); }
+  else if (b.dataset.del) { state.kids.splice(+b.dataset.del, 1); renderKids(); }
+  else if (b.id === "addkid" && state.kids.length < 6) { const l = state.kids[state.kids.length - 1]; state.kids.push({ year: Math.min(calY, l.year + 2), month: 4, hs: "公立", after: "国公立大学" }); renderKids(); }
+  else if (b.id === "mus_y" || b.id === "mus_n") { state.mushoka = b.id === "mus_y"; seg("mus_y", "mus_n", state.mushoka); }
+  else if (b.id === "reset") { state = structuredClone(EXAMPLE); fill(); }
+  else return;
+  update();
+});
+fill(); update();
+</script>
+</body>
+</html>
